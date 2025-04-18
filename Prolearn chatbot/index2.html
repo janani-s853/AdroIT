@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peolearn Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: 0.3s;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
+      --input-bg: #f1f1f1;
+    }
+
+    .dark-mode {
+      --bg: #121212;
+      --text: #ffffff;
+      --input-bg: #1e1e1e;
+    }
+
+    #chat-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: var(--bg);
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #messages {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: var(--input-bg);
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin: 5px 0;
+    }
+
+    .user {
+      text-align: right;
+      color: #007bff;
+    }
+
+    .bot {
+      text-align: left;
+      color: #28a745;
+    }
+
+    #input-area {
+      display: flex;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    #send-btn {
+      padding: 10px 20px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    #toggle-theme {
+      margin-top: 10px;
+      float: right;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="toggle-theme">🌙 Toggle Theme</div>
+    <div id="messages"></div>
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Type a message..." autofocus />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesDiv = document.getElementById('messages');
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const toggleTheme = document.getElementById('toggle-theme');
+    const body = document.body;
+
+    // Print initial greeting
+    window.onload = () => {
+      addMessage("Prolearn Chatbot: Hello!", "bot");
+    };
+
+    function addMessage(text, sender) {
+      const div = document.createElement('div');
+      div.className = `message ${sender}`;
+      div.textContent = text;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage("You: " + text, "user");
+      input.value = "";
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      })
+      .then(res => res.json())
+      .then(data => {
+        addMessage("Prolearn Chatbot: " + data.reply, "bot");
+      });
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    toggleTheme.addEventListener("click", () => {
+      body.classList.toggle("dark-mode");
+    });
+  </script>
+</body>
+</html>
